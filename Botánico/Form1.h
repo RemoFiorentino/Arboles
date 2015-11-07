@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Bot·nico {
+namespace Bot√°nico {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -16,17 +16,26 @@ namespace Bot·nico {
 	{
 	public:
 
+		ref struct Nodo
+		{
+			String^ Info;
+			Nodo^ Izquierdo;
+			Nodo^ Derecho;
+		};
+
+		static Nodo^ Raiz = nullptr;
+
 		Form1(void)
 		{
 			InitializeComponent();
 			//
-			//TODO: agregar cÛdigo de constructor aquÌ
+			//TODO: agregar c√≥digo de constructor aqu√≠
 			//
 		}
 
 	protected:
 		/// <summary>
-		/// Limpiar los recursos que se estÈn utilizando.
+		/// Limpiar los recursos que se est√©n utilizando.
 		/// </summary>
 		~Form1()
 		{
@@ -51,17 +60,117 @@ namespace Bot·nico {
 
 	private:
 		/// <summary>
-		/// Variable del diseÒador requerida.
+		/// Variable del dise√±ador requerida.
 		/// </summary>
 		System::ComponentModel::Container ^components;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
-		/// MÈtodo necesario para admitir el DiseÒador. No se puede modificar
-		/// el contenido del mÈtodo con el editor de cÛdigo.
+		/// M√©todo necesario para admitir el Dise√±ador. No se puede modificar
+		/// el contenido del m√©todo con el editor de c√≥digo.
 		/// </summary>
 
-		
+		void Agregar(String^ Informacion, Nodo^ Padre, bool Agregado)
+		{
+			Nodo^ P = gcnew Nodo;
+			P->Info = Informacion;
+			P->Derecho = nullptr;
+			P->Izquierdo = nullptr;
+
+			if (Raiz == nullptr){
+				Raiz = P;
+			}
+			else{
+				if (Agregado == false){
+					if (Padre->Izquierdo == nullptr){
+						Padre->Izquierdo = P;
+					}
+					else{
+						MessageBox::Show("Este nodo ya tiene un hijo izquierdo");
+					}
+				}
+				else{
+					if (Padre->Derecho == nullptr){
+						Padre->Derecho = P;
+					}
+					else{
+						MessageBox::Show("Este nodo ya tiene un hijo derecho");
+					}
+				}
+			}
+		}
+
+		Nodo^ BuscarSeleccionado(String^ Informacion)
+		{
+			if (Raiz != nullptr){
+				Queue^ Direcciones = gcnew Queue();
+				Nodo^ P = nullptr;
+				bool Sw = false;
+
+				Direcciones->Enqueue(Raiz);
+
+				while (Direcciones->Count > 0 && Sw == false){
+					P = (Nodo^)Direcciones->Dequeue();
+
+					if (P->Info == Informacion){
+						Sw = true;
+					}
+					else{
+						if (P->Izquierdo != nullptr){
+							Direcciones->Enqueue(P->Izquierdo);
+						}
+						if (P->Derecho != nullptr){
+							Direcciones->Enqueue(P->Derecho);
+						}
+					}
+				}			
+				return P;
+			}
+			return nullptr;
+		}
+
+		void Preorden(Nodo^ P)
+		{
+			if (P!=nullptr)
+			{
+				listBox1->Items->Add(P->Info);
+				Preorden(P->Izquierdo);
+				Preorden(P->Derecho);
+			}
+		}
+
+		void Inorden(Nodo^ P)
+		{
+			if (P != nullptr)
+			{	
+				Inorden(P->Izquierdo);
+				listBox1->Items->Add(P->Info);
+				Inorden(P->Derecho);
+			}
+		}
+
+		void Postorden(Nodo^ P)
+		{
+			if (P != nullptr)
+			{
+				Postorden(P->Izquierdo);
+				Postorden(P->Derecho);
+				listBox1->Items->Add(P->Info);
+			}
+		}
+
+		void MostrarArbol(TreeView^ Mostrador, TreeNode^ NodoArbol, Nodo^ P){
+			if (P != nullptr){
+				if (NodoArbol == nullptr){
+					NodoArbol = Mostrador->Nodes->Add(P->Info);
+				}
+				else{
+					NodoArbol = NodoArbol->Nodes->Add(P->Info);
+				}
+				MostrarArbol(Mostrador, NodoArbol, P->Izquierdo);
+				MostrarArbol(Mostrador, NodoArbol, P->Derecho);
+			}
+		}
 
 		void InitializeComponent(void)
 		{
@@ -227,7 +336,7 @@ namespace Bot·nico {
 
 				 if (String::IsNullOrWhiteSpace(textBox1->Text))
 				 {
-					 MessageBox::Show("Antes de agregar un Hijo, debes asegurarte que la informciÛn no es vacÌa.", "Bot·nico", MessageBoxButtons::OK, MessageBoxIcon::Information);
+					 MessageBox::Show("Antes de agregar un Hijo, debes asegurarte que la informci√≥n no es vac√≠a.", "Bot√°nico", MessageBoxButtons::OK, MessageBoxIcon::Information);
 				 }
 				 else
 				 {
